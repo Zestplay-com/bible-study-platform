@@ -2,7 +2,7 @@ import { sitePath } from "@/lib/site";
 import { defaultTranslationId } from "@/lib/bible/translations";
 import { getBibleProvider } from "@/lib/bible/registry";
 import { getStudyInsight } from "@/lib/study/insights";
-import { buildDynamicInsight } from "@/lib/study/dynamic";
+import { buildDynamicInsight, parseBibleReference, resolveBookId } from "@/lib/study/dynamic";
 
 type Props = { searchParams: Promise<{ reference?: string; text?: string }> };
 type TeacherMode = "explain" | "context" | "original" | "connections" | "apply";
@@ -11,11 +11,6 @@ const modes: { id: TeacherMode; label: string }[] = [
   { id: "original", label: "Greek / Hebrew" }, { id: "connections", label: "Bible connections" }, { id: "apply", label: "Apply it" },
 ];
 
-function getBookId(reference: string) {
-  const match = reference.trim().match(/^(.+?)\s+\d+:\d+$/);
-  return match?.[1]?.toLowerCase().replace(/\s+/g, "-") ?? "";
-}
-
 export default async function AskPage({ searchParams }: Props) {
   const params = await searchParams;
   const reference = params.reference ?? "Scripture";
@@ -23,11 +18,11 @@ export default async function AskPage({ searchParams }: Props) {
   const provider = getBibleProvider(defaultTranslationId);
   const curated = getStudyInsight(reference);
   const insight = curated ?? buildDynamicInsight(reference, text, provider ?? undefined, defaultTranslationId);
-  const parsed = reference.match(/^(.+?)\s+(\d+):(\d+)$/);
-  const bookId = getBookId(reference);
-  const chapter = parsed ? Number(parsed[2]) : 1;
+  const parsed = parseBibleReference(reference);
+  const bookId = parsed ? resolveBookId(parsed.bookName) : null;
+  const chapter = parsed?.chapter ?? 1;
   const chapterVerses = provider && bookId ? provider.getChapter(defaultTranslationId, bookId, chapter) : [];
-  const verseIndex = chapterVerses.findIndex((verse) => verse.reference.toLowerCase() === reference.toLowerCase());
+  const verseIndex = chapterVerses.findIndex((verse) => verse.reference.toLowerCase() === reference.trim().toLowerCase().replace(/\bpsalm\b/g,"psalms"));
   const actualText = text || chapterVerses[verseIndex]?.text || "Open a verse from the Bible reader to study it here.";
   const previous = verseIndex > 0 ? chapterVerses[verseIndex - 1] : null;
   const next = verseIndex >= 0 && verseIndex < chapterVerses.length - 1 ? chapterVerses[verseIndex + 1] : null;
