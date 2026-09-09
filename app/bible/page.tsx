@@ -1,4 +1,5 @@
 import { bibleBooks } from "@/lib/bible/catalog";
+import { sitePath } from "@/lib/site";
 
 export default function BiblePage() {
   const oldTestament = bibleBooks.filter((book) => book.testament === "old");
@@ -7,8 +8,8 @@ export default function BiblePage() {
   return (
     <main className="reader-shell">
       <header className="reader-header">
-        <a href="/" className="back-link">← Home</a>
-        <a href="/ask" className="ask-link">Ask about Scripture</a>
+        <a href={sitePath("/")} className="back-link">← Home</a>
+        <a href={sitePath("/ask")} className="ask-link">Ask about Scripture</a>
       </header>
 
       <section className="reader-intro">
@@ -29,7 +30,7 @@ function BookGroup({ title, books }: { title: string; books: typeof bibleBooks }
       <h2 id={title.replaceAll(" ", "-")}>{title}</h2>
       <div className="book-grid">
         {books.map((book) => (
-          <a className="book-card" href={`/bible/${book.id}`} key={book.id}>
+          <a className="book-card" href={sitePath(`/bible/${book.id}`)} key={book.id}>
             <strong>{book.name}</strong>
             <span>{book.chapters} {book.chapters === 1 ? "chapter" : "chapters"}</span>
           </a>
