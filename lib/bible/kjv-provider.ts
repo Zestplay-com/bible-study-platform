@@ -47,20 +47,26 @@ const allVerses: BibleVerse[] = Object.entries(verseMap)
     a.bookId.localeCompare(b.bookId) || a.chapter - b.chapter || a.verse - b.verse,
   );
 
+const chapterIndex = new Map<string, BibleVerse[]>();
+const verseIndex = new Map<string, BibleVerse>();
+
+for (const verse of allVerses) {
+  const chapterKey = `${verse.bookId}:${verse.chapter}`;
+  const chapter = chapterIndex.get(chapterKey) ?? [];
+  chapter.push(verse);
+  chapterIndex.set(chapterKey, chapter);
+  verseIndex.set(`${chapterKey}:${verse.verse}`, verse);
+}
+
 export const kjvBibleProvider: BibleProvider = {
   getChapter(requestedTranslationId, bookId, chapter) {
     if (requestedTranslationId !== translationId) return [];
-    return allVerses.filter((verse) => verse.bookId === bookId && verse.chapter === chapter);
+    return chapterIndex.get(`${bookId}:${chapter}`) ?? [];
   },
 
   getVerse(requestedTranslationId, bookId, chapter, verseNumber) {
     if (requestedTranslationId !== translationId) return null;
-    return (
-      allVerses.find(
-        (verse) =>
-          verse.bookId === bookId && verse.chapter === chapter && verse.verse === verseNumber,
-      ) ?? null
-    );
+    return verseIndex.get(`${bookId}:${chapter}:${verseNumber}`) ?? null;
   },
 
   search(requestedTranslationId, query) {
