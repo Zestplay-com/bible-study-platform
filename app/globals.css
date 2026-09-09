@@ -57,6 +57,7 @@ h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spac
 
 .reader-shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding-bottom: 60px; }
 .reader-header { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
+.reader-header-links { display: flex; align-items: center; gap: 18px; }
 .back-link, .ask-link { color: var(--muted); font-size: .9rem; font-weight: 700; }
 .back-link:hover, .ask-link:hover { color: var(--text); }
 .ask-link { color: var(--accent); }
@@ -79,9 +80,11 @@ h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spac
 .verse { display: grid; grid-template-columns: 42px 1fr; column-gap: 14px; padding: 24px 0; border-bottom: 1px solid var(--line); }
 .verse-number { color: var(--accent); font-size: .78rem; font-weight: 900; padding-top: 5px; }
 .verse p { margin: 0; font-family: Georgia, serif; font-size: 1.25rem; line-height: 1.85; }
-.verse-actions, .result-actions { grid-column: 2; display: flex; gap: 18px; margin-top: 12px; }
-.verse-actions a, .result-actions a { color: var(--accent); font-size: .78rem; font-weight: 800; }
+.verse-actions, .result-actions { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 12px; }
+.verse-actions a, .result-actions a, .bookmark-button { color: var(--accent); font-size: .78rem; font-weight: 800; }
 .verse-actions a:hover, .result-actions a:hover { text-decoration: underline; }
+.bookmark-button { padding: 0; border: 0; background: transparent; }
+.bookmark-button[aria-pressed="true"] { font-weight: 900; }
 .empty-reader { padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
 .empty-reader h2 { font-size: 1.5rem; }
 .empty-reader p { color: var(--muted); }
@@ -134,6 +137,22 @@ h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spac
 .text-button { align-self: flex-start; padding: 0; border: 0; background: transparent; color: var(--accent); font-weight: 800; cursor: pointer; }
 .text-button:hover { text-decoration: underline; }
 
+.bookmarks-page { max-width: 900px; }
+.bookmarks-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin: 18px 0 34px; }
+.bookmarks-heading h1 { font-size: clamp(2.5rem, 7vw, 5rem); }
+.page-lede { max-width: 580px; margin: 14px 0 0; color: var(--muted); }
+.bookmark-count { flex: 0 0 auto; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .78rem; font-weight: 800; }
+.bookmark-list { display: grid; gap: 12px; }
+.bookmark-card { padding: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.bookmark-card p { margin: 8px 0 0; font-family: Georgia, serif; font-size: 1.12rem; line-height: 1.75; }
+.bookmark-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 14px; }
+.bookmark-actions a { color: var(--accent); font-size: .78rem; font-weight: 800; }
+.bookmark-actions a:hover { text-decoration: underline; }
+.bookmark-empty { padding: 36px 28px; border: 1px dashed var(--line); border-radius: 18px; background: rgba(255,255,255,.5); }
+.bookmark-empty h2 { font-size: 1.8rem; }
+.bookmark-empty p { max-width: 560px; color: var(--muted); }
+.bookmark-empty .primary-button { margin-top: 10px; }
+
 @media (max-width: 800px) { .book-grid { grid-template-columns: repeat(3, 1fr); } .chapter-grid { grid-template-columns: repeat(7, 1fr); } }
 @media (max-width: 650px) {
   .site-header { min-height: 64px; }
@@ -144,6 +163,9 @@ h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spac
   .method-item { grid-template-columns: 48px 1fr; }
   .search-row { flex-direction: column; }
   .search-row button { width: 100%; }
+  .reader-header-links { gap: 12px; }
+  .reader-header-links a:first-child { display: none; }
+  .bookmarks-heading { align-items: flex-start; flex-direction: column; }
 }
 @media (max-width: 520px) {
   .reader-header { min-height: 64px; }
@@ -151,6 +173,6 @@ h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spac
   .chapter-grid { grid-template-columns: repeat(5, 1fr); }
   .verse p { font-size: 1.12rem; }
   .verse { grid-template-columns: 30px 1fr; column-gap: 10px; }
-  .verse-actions, .result-actions { gap: 12px; }
+  .verse-actions, .result-actions, .bookmark-actions { gap: 12px; }
   .saved-note { flex-direction: column; }
 }

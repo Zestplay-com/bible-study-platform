@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import BookmarkButton from "@/components/BookmarkButton";
 import { bibleBooks } from "@/lib/bible/catalog";
 import { defaultTranslationId } from "@/lib/bible/translations";
 import { getBibleProvider } from "@/lib/bible/registry";
@@ -31,7 +32,10 @@ export default async function ChapterPage({ params }: Props) {
     <main className="reader-shell">
       <header className="reader-header">
         <a href={sitePath(`/bible/${book.id}`)} className="back-link">← {book.name}</a>
-        <a href={sitePath("/bible/search")} className="ask-link">Search Bible</a>
+        <div className="reader-header-links">
+          <a href={sitePath("/bookmarks")} className="ask-link">Saved verses</a>
+          <a href={sitePath("/bible/search")} className="ask-link">Search Bible</a>
+        </div>
       </header>
 
       <article className="chapter-reader">
@@ -52,6 +56,7 @@ export default async function ChapterPage({ params }: Props) {
                     <a href={sitePath(`/ask?${query}`)}>Explain</a>
                     <a href={sitePath(`/memory?${query}`)}>Memorize</a>
                     <a href={sitePath(`/notes?${query}`)}>Note</a>
+                    <BookmarkButton reference={verse.reference} text={verse.text} compact />
                   </div>
                 </div>
               );
