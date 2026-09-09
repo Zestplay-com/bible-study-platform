@@ -5,7 +5,7 @@ import { defaultTranslationId } from "@/lib/bible/translations";
 const provider = getBibleProvider(defaultTranslationId);
 
 describe("Bible provider", () => {
-  it("returns the sample John 3:16 verse", () => {
+  it("returns the full KJV John 3:16 verse", () => {
     expect(provider?.getVerse?.(defaultTranslationId, "john", 3, 16)).toMatchObject({
       reference: "John 3:16",
       text: expect.stringContaining("For God so loved the world"),
@@ -19,9 +19,16 @@ describe("Bible provider", () => {
     });
   });
 
-  it("returns verses in chapter order", () => {
+  it("returns a complete John 1 chapter", () => {
     const verses = provider?.getChapter(defaultTranslationId, "john", 1) ?? [];
-    expect(verses.map((verse) => verse.verse)).toEqual([1, 2, 3]);
+    expect(verses).toHaveLength(51);
+    expect(verses[0]?.verse).toBe(1);
+    expect(verses.at(-1)?.verse).toBe(51);
+  });
+
+  it("searches the full Bible text", () => {
+    const results = provider?.search?.(defaultTranslationId, "For God so loved the world") ?? [];
+    expect(results.some((verse) => verse.reference === "John 3:16")).toBe(true);
   });
 
   it("returns null for an unknown verse", () => {
