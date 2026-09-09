@@ -1,20 +1,21 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { sitePath } from "@/lib/site";
 
 type Note = { id: string; reference: string; text: string; note: string };
 const STORAGE_KEY = "bible-study-notes";
 
 export default function NotesPage() {
-  const params = useSearchParams();
-  const reference = params.get("reference") ?? "";
-  const text = params.get("text") ?? "";
+  const [reference, setReference] = useState("");
+  const [text, setText] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
   const [note, setNote] = useState("");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setReference(params.get("reference") ?? "");
+    setText(params.get("text") ?? "");
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setNotes(JSON.parse(saved));
