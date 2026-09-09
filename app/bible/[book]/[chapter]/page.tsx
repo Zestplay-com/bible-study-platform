@@ -42,17 +42,20 @@ export default async function ChapterPage({ params }: Props) {
 
         {verses.length > 0 ? (
           <div className="verse-list">
-            {verses.map((verse) => (
-              <div className="verse" key={verse.verse}>
-                <span className="verse-number">{verse.verse}</span>
-                <p>{verse.text}</p>
-                <div className="verse-actions">
-                  <a href={sitePath(`/ask?reference=${encodeURIComponent(verse.reference)}`)}>Explain</a>
-                  <a href={sitePath("/memory")}>Memorize</a>
-                  <a href={sitePath("/notes")}>Note</a>
+            {verses.map((verse) => {
+              const query = `reference=${encodeURIComponent(verse.reference)}&text=${encodeURIComponent(verse.text)}`;
+              return (
+                <div className="verse" key={verse.verse}>
+                  <span className="verse-number">{verse.verse}</span>
+                  <p>{verse.text}</p>
+                  <div className="verse-actions">
+                    <a href={sitePath(`/ask?${query}`)}>Explain</a>
+                    <a href={sitePath(`/memory?${query}`)}>Memorize</a>
+                    <a href={sitePath(`/notes?${query}`)}>Note</a>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="empty-reader">
