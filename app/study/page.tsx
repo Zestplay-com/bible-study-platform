@@ -26,6 +26,7 @@ export default async function StudyPage({ searchParams }: Props) {
 
   return (
     <main className="action-page study-page">
+      <style>{`.study-lead{margin:-12px 0 24px;max-width:650px;color:var(--muted);font-size:1.08rem}.study-time-switcher{display:flex;gap:8px;margin:0 0 28px;padding:5px;width:max-content;max-width:100%;border:1px solid var(--line);border-radius:999px;background:var(--surface)}.time-option{padding:8px 15px;border-radius:999px;color:var(--muted);font-size:.82rem;font-weight:800}.time-option.active{background:var(--accent);color:#fff}.featured-passage h2{font-size:1.6rem;margin-bottom:8px}.study-verse{font-family:Georgia,serif;font-size:1.2rem;line-height:1.8;margin:0 0 18px}.study-steps{margin-top:52px}.study-step-list{border-top:1px solid var(--line)}.study-step{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)}.study-step h3{margin:0 0 4px;font-size:.95rem}.study-step p{margin:0;color:var(--muted)}.study-finish{margin-top:52px;padding:26px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}.study-finish h2{font-size:2rem;margin-bottom:10px}.study-finish>p:not(.eyebrow){color:var(--muted)}@media(max-width:520px){.study-time-switcher{width:100%}.time-option{flex:1;text-align:center;padding-left:8px;padding-right:8px}.study-step{grid-template-columns:34px 1fr}.study-finish{padding:22px}}`}</style>
       <a className="back-link" href={sitePath("/")}>← Home</a>
       <p className="eyebrow">LAZY-PROOF STUDY</p>
       <h1>{content.title}</h1>
