@@ -19,10 +19,10 @@ export default async function BibleSearchPage({ searchParams }: Props) {
         <a href={sitePath("/")} className="ask-link">Home</a>
       </header>
 
-      <section className="reader-intro">
+      <section className="reader-intro search-intro">
         <p className="eyebrow">SCRIPTURE SEARCH</p>
-        <h1>Search the Bible</h1>
-        <p>Search the full KJV text by words, phrases, or references.</p>
+        <h1>Find a Scripture.</h1>
+        <p>Search the full KJV by word, phrase, or reference.</p>
       </section>
 
       <form className="search-form" method="get" action={sitePath("/bible/search")}>
@@ -33,42 +33,57 @@ export default async function BibleSearchPage({ searchParams }: Props) {
             name="q"
             type="search"
             defaultValue={query}
-            placeholder="e.g. faith, John 3:16, prayer"
+            placeholder="Try “faith”, “prayer”, or “John 3:16”"
             autoComplete="off"
           />
           <button type="submit">Search</button>
         </div>
+        <p className="search-hint">Tip: references such as John 3:16 and Psalm 23:1 go straight to the verse.</p>
       </form>
 
       {query ? (
         <section className="search-results" aria-labelledby="results-heading">
-          <h2 id="results-heading">
-            {results.length} {results.length === 1 ? "result" : "results"} for “{query}”
-          </h2>
+          <div className="results-heading-row">
+            <div>
+              <p className="eyebrow">RESULTS</p>
+              <h2 id="results-heading">{results.length} {results.length === 1 ? "match" : "matches"}</h2>
+            </div>
+            <a className="text-button" href={sitePath("/bible/search")}>Clear</a>
+          </div>
+
           {results.length > 0 ? (
-            <div className="verse-list">
-              {results.map((verse) => (
-                <article className="verse" key={`${verse.reference}-${verse.translationId}`}>
-                  <a href={sitePath(`/bible/${verse.bookId}/${verse.chapter}`)}>
-                    <strong>{verse.reference}</strong>
-                  </a>
-                  <p>{verse.text}</p>
-                  <div className="verse-actions">
-                    <a href={sitePath(`/ask?reference=${encodeURIComponent(verse.reference)}`)}>Explain</a>
-                    <a href={sitePath("/memory")}>Memorize</a>
-                    <a href={sitePath("/notes")}>Note</a>
-                  </div>
-                </article>
-              ))}
+            <div className="search-result-list">
+              {results.map((verse) => {
+                const queryParams = `reference=${encodeURIComponent(verse.reference)}&text=${encodeURIComponent(verse.text)}`;
+                return (
+                  <article className="search-result-card" key={`${verse.reference}-${verse.translationId}`}>
+                    <a className="result-reference" href={sitePath(`/bible/${verse.bookId}/${verse.chapter}`)}>
+                      {verse.reference}
+                    </a>
+                    <p>{verse.text}</p>
+                    <div className="result-actions">
+                      <a href={sitePath(`/ask?${queryParams}`)}>Explain</a>
+                      <a href={sitePath(`/memory?${queryParams}`)}>Memorize</a>
+                      <a href={sitePath(`/notes?${queryParams}`)}>Note</a>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <div className="empty-reader">
-              <h2>No matching verses</h2>
-              <p>Try a shorter word, a different phrase, or a reference such as John 3:16.</p>
+              <h2>Nothing found yet</h2>
+              <p>Try a shorter word, another phrase, or a reference such as John 3:16.</p>
             </div>
           )}
         </section>
-      ) : null}
+      ) : (
+        <section className="search-empty-state">
+          <span className="search-icon" aria-hidden="true">⌕</span>
+          <h2>What are you looking for?</h2>
+          <p>Find a verse, phrase, or passage and continue your study from there.</p>
+        </section>
+      )}
     </main>
   );
 }
