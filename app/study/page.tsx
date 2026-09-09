@@ -1,4 +1,5 @@
 import { sitePath } from "@/lib/site";
+import { bibleBooks } from "@/lib/bible/catalog";
 import { defaultTranslationId } from "@/lib/bible/translations";
 import { getBibleProvider } from "@/lib/bible/registry";
 import { buildDynamicInsight } from "@/lib/study/dynamic";
@@ -7,6 +8,15 @@ const STUDY_MINUTES = [5, 10, 20] as const;
 type Props = { searchParams: Promise<{ minutes?: string; reference?: string }> };
 
 function getMinutes(value?: string) { const n=Number(value); return STUDY_MINUTES.includes(n as 5|10|20)?n:5; }
+
+function resolveReference(value: string) {
+  const match=value.trim().match(/^(.+?)\s+(\d+):(\d+)$/);
+  if (!match) return null;
+  const normalized=match[1].trim().toLowerCase().replace(/\s+/g," ");
+  const aliases=new Map([["psalm","psalms"],["song of songs","song of solomon"]]);
+  const book=bibleBooks.find(item=>item.name.toLowerCase()===(aliases.get(normalized)??normalized));
+  return book ? { bookId: book.id, chapter: Number(match[2]), verse: Number(match[3]) } : null;
+}
 
 function stepsFor(minutes:number) {
   if(minutes===20) return [
@@ -33,8 +43,8 @@ function stepsFor(minutes:number) {
 
 export default async function StudyPage({ searchParams }: Props) {
   const params=await searchParams; const minutes=getMinutes(params.minutes); const provider=getBibleProvider(defaultTranslationId);
-  const reference=params.reference||"John 3:16"; const parsed=reference.match(/^(.+?)\s+(\d+):(\d+)$/); const bookId=parsed?.[1].toLowerCase().replace(/\s+/g,"-"); const chapter=parsed?Number(parsed[2]):3;
-  const verse=provider?.getVerse?.(defaultTranslationId,bookId||"john",chapter,parsed?Number(parsed[3]):16);
+  const reference=params.reference||"John 3:16"; const resolved=resolveReference(reference);
+  const chapter=resolved?.chapter||3; const verse=provider?.getVerse?.(defaultTranslationId,resolved?.bookId||"john",chapter,resolved?.verse||16);
   const text=verse?.text||"For God so loved the world..."; const insight=buildDynamicInsight(reference,text,provider||undefined,defaultTranslationId); const steps=stepsFor(minutes);
   const query=`reference=${encodeURIComponent(verse?.reference||reference)}&text=${encodeURIComponent(text)}`;
   return <main className="action-page study-page">
@@ -43,7 +53,7 @@ export default async function StudyPage({ searchParams }: Props) {
     <p className="eyebrow">LAZY-PROOF STUDY</p><h1>{minutes}-minute Bible study</h1>
     <p className="study-lead">A guided study that gets deeper as you give it more time: Scripture first, context, original-language insight, Bible connections, reflection and practical obedience.</p>
     <div className="study-time-switcher" aria-label="Choose study length">{STUDY_MINUTES.map(option=><a key={option} className={option===minutes?"time-option active":"time-option"} href={sitePath(`/study?minutes=${option}&reference=${encodeURIComponent(reference)}`)}>{option} min</a>)}</div>
-    <section className="study-card featured-passage"><p className="eyebrow">START HERE</p><h2>{verse?.reference||reference}</h2><p className="study-verse">{text}</p><div className="action-page-links"><a className="primary-button" href={sitePath(bookId?`/bible/${bookId}/${chapter}`:"/bible")}>Open chapter</a><a className="secondary-button" href={sitePath(`/ask?${query}`)}>Deep study</a></div></section>
+    <section className="study-card featured-passage"><p className="eyebrow">START HERE</p><h2>{verse?.reference||reference}</h2><p className="study-verse">{text}</p><div className="action-page-links"><a className="primary-button" href={sitePath(resolved?`/bible/${resolved.bookId}/${chapter}`:"/bible")}>Open chapter</a><a className="secondary-button" href={sitePath(`/ask?${query}`)}>Deep study</a></div></section>
     <div className="study-depth"><div className="study-depth-card"><strong>5 MIN</strong><span>Capture the central truth and respond.</span></div><div className="study-depth-card"><strong>10 MIN</strong><span>Add context, connections and reflection.</span></div><div className="study-depth-card"><strong>20 MIN</strong><span>Trace meaning, words, theology and application.</span></div></div>
     <section className="study-steps" aria-labelledby="study-steps-heading"><div className="section-heading"><p className="eyebrow">YOUR NEXT {minutes} MINUTES</p><h2 id="study-steps-heading">Study, don't just read.</h2></div><div className="study-step-list">{steps.map(([title,description],i)=><article className="study-step" key={title}><span className="method-number">{String(i+1).padStart(2,"0")}</span><div><h3>{title}</h3><p>{description}</p></div></article>)}</div></section>
     <section className="study-card"><p className="eyebrow">YOUR STUDY COMPASS</p><h2>Three questions to carry with you.</h2><div className="insight-list"><p><span>01</span>What does this passage actually say in its own context?</p><p><span>02</span>What does it reveal about God and His purposes?</p><p><span>03</span>What should I believe, change, practice, pray or remember because of it?</p></div><div className="action-page-links"><a className="secondary-button" href={sitePath(`/ask?${query}`)}>Explore {reference}</a><a className="primary-button" href={sitePath(`/memory?${query}`)}>Memorize it</a></div></section>
