@@ -6,8 +6,8 @@ export const maxDuration = 30;
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.AI_GATEWAY_API_KEY) {
-      return NextResponse.json({ error: "AI Teacher is not configured yet. Add AI_GATEWAY_API_KEY to the server environment." }, { status: 503 });
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "AI Teacher is not configured yet. Add OPENAI_API_KEY to the server environment." }, { status: 503 });
     }
 
     const body = await request.json() as { reference?: unknown; question?: unknown };
