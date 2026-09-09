@@ -10,6 +10,14 @@ const verseMap = verses as VerseMap;
 
 const booksByName = [...bibleBooks].sort((a, b) => b.name.length - a.name.length);
 
+function normalizeReferenceQuery(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\bpsalm\b/g, "psalms")
+    .replace(/\s+/g, " ");
+}
+
 function parseReference(reference: string) {
   const book = booksByName.find((candidate) => reference.startsWith(`${candidate.name} `));
   if (!book) return null;
@@ -49,6 +57,7 @@ const allVerses: BibleVerse[] = Object.entries(verseMap)
 
 const chapterIndex = new Map<string, BibleVerse[]>();
 const verseIndex = new Map<string, BibleVerse>();
+const normalizedReferenceIndex = new Map<string, BibleVerse>();
 
 for (const verse of allVerses) {
   const chapterKey = `${verse.bookId}:${verse.chapter}`;
@@ -56,6 +65,7 @@ for (const verse of allVerses) {
   chapter.push(verse);
   chapterIndex.set(chapterKey, chapter);
   verseIndex.set(`${chapterKey}:${verse.verse}`, verse);
+  normalizedReferenceIndex.set(normalizeReferenceQuery(verse.reference), verse);
 }
 
 export const kjvBibleProvider: BibleProvider = {
@@ -74,12 +84,24 @@ export const kjvBibleProvider: BibleProvider = {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];
 
+    const normalizedReference = normalizeReferenceQuery(query);
+    const exactReference = normalizedReferenceIndex.get(normalizedReference);
+    if (exactReference) return [exactReference];
+
+    const terms = normalizedQuery.split(/\s+/).filter(Boolean);
     return allVerses
-      .filter(
-        (verse) =>
-          verse.text.toLowerCase().includes(normalizedQuery) ||
-          verse.reference.toLowerCase().includes(normalizedQuery),
-      )
-      .slice(0, 100);
+      .map((verse) => {
+        const reference = verse.reference.toLowerCase();
+        const text = verse.text.toLowerCase();
+        const exactPhrase = text.includes(normalizedQuery);
+        const referenceMatch = reference.includes(normalizedQuery);
+        const matchedTerms = terms.filter((term) => text.includes(term)).length;
+        const score = (referenceMatch ? 30 : 0) + (exactPhrase ? 20 : 0) + matchedTerms * 2;
+        return { verse, score };
+      })
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || a.verse.reference.localeCompare(b.verse.reference))
+      .slice(0, 100)
+      .map(({ verse }) => verse);
   },
 };
