@@ -1,11 +1,17 @@
-import { generateText } from "ai";
+import OpenAI from "openai";
 import { defaultTranslationId } from "@/lib/bible/translations";
 import { getBibleProvider } from "@/lib/bible/registry";
 import { parseBibleReference } from "@/lib/bible/reference";
 import { buildDynamicInsight } from "@/lib/study/dynamic";
 import { getStudyInsight } from "@/lib/study/insights";
 
-const MODEL = "openai/gpt-5.6-luna";
+const MODEL = "gpt-5.6-luna";
+
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured.");
+  return new OpenAI({ apiKey });
+}
 
 export async function askBibleTeacher(reference: string, question: string) {
   const cleanReference = reference.trim().slice(0, 120);
@@ -24,10 +30,7 @@ export async function askBibleTeacher(reference: string, question: string) {
     ? chapter.filter((item) => Math.abs(item.verse - verse.verse) <= 2).map((item) => `${item.reference}: ${item.text}`).join("\n")
     : "No exact verse was found in the Bible provider.";
 
-  const { text } = await generateText({
-    model: MODEL,
-    maxOutputTokens: 1200,
-    system: `You are the Bible Teacher inside a Scripture-first Bible study platform.
+  const system = `You are the Bible Teacher inside a Scripture-first Bible study platform.
 
 Your job is to help the user understand Scripture faithfully, clearly, deeply, and practically.
 Rules:
@@ -50,9 +53,15 @@ Study insight: ${insight.bigIdea}
 Original-language study notes:
 ${insight.words.map((word) => `${word.word}: ${word.original} (${word.transliteration}) — ${word.meaning}. ${word.whyItMatters}`).join("\n")}
 Cross-reference notes:
-${insight.crossReferences.map((item) => `${item.reference}: ${item.connection}`).join("\n")}`,
-    prompt: cleanQuestion,
+${insight.crossReferences.map((item) => `${item.reference}: ${item.connection}`).join("\n")}`;
+
+  const client = getOpenAIClient();
+  const response = await client.responses.create({
+    model: MODEL,
+    instructions: system,
+    input: cleanQuestion,
+    max_output_tokens: 1200,
   });
 
-  return { answer: text, reference: cleanReference, model: MODEL };
+  return { answer: response.output_text, reference: cleanReference, model: MODEL };
 }
