@@ -1,8 +1,9 @@
 import { sitePath } from "@/lib/site";
 import { defaultTranslationId } from "@/lib/bible/translations";
 import { getBibleProvider } from "@/lib/bible/registry";
+import { parseBibleReference } from "@/lib/bible/reference";
 import { getStudyInsight } from "@/lib/study/insights";
-import { buildDynamicInsight, parseBibleReference, resolveBookId } from "@/lib/study/dynamic";
+import { buildDynamicInsight } from "@/lib/study/dynamic";
 
 type Props = { searchParams: Promise<{ reference?: string; text?: string }> };
 type TeacherMode = "explain" | "context" | "original" | "connections" | "apply";
@@ -19,7 +20,7 @@ export default async function AskPage({ searchParams }: Props) {
   const curated = getStudyInsight(reference);
   const insight = curated ?? buildDynamicInsight(reference, text, provider ?? undefined, defaultTranslationId);
   const parsed = parseBibleReference(reference);
-  const bookId = parsed ? resolveBookId(parsed.bookName) : null;
+  const bookId = parsed?.bookId ?? null;
   const chapter = parsed?.chapter ?? 1;
   const chapterVerses = provider && bookId ? provider.getChapter(defaultTranslationId, bookId, chapter) : [];
   const verseIndex = chapterVerses.findIndex((verse) => verse.reference.toLowerCase() === reference.trim().toLowerCase().replace(/\bpsalm\b/g,"psalms"));
