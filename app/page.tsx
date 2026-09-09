@@ -1,23 +1,25 @@
+import { sitePath } from "@/lib/site";
+
 const actions = [
   {
     label: "I HAVE 5 MINUTES",
     description: "Start a focused Bible study that fits your time.",
-    href: "/study?minutes=5",
+    href: sitePath("/study?minutes=5"),
   },
   {
     label: "I'M LOST",
     description: "Bring a difficult passage and let the study guide you.",
-    href: "/ask",
+    href: sitePath("/ask"),
   },
   {
     label: "TEACH ME",
     description: "Learn Scripture clearly, step by step, without the jargon.",
-    href: "/ask",
+    href: sitePath("/ask"),
   },
   {
     label: "READ THE BIBLE",
     description: "Open Scripture and start reading immediately.",
-    href: "/bible",
+    href: sitePath("/bible"),
   },
 ];
 
@@ -25,12 +27,12 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="/">Bible Study</a>
+        <a className="brand" href={sitePath("/")}>Bible Study</a>
         <nav aria-label="Main navigation">
-          <a href="/bible">Bible</a>
-          <a href="/study">Study</a>
-          <a href="/memory">Memory</a>
-          <a href="/sermon">Sermon</a>
+          <a href={sitePath("/bible")}>Bible</a>
+          <a href={sitePath("/study")}>Study</a>
+          <a href={sitePath("/memory")}>Memory</a>
+          <a href={sitePath("/sermon")}>Sermon</a>
         </nav>
       </header>
 
@@ -42,8 +44,8 @@ export default function Home() {
           Know what to do next.
         </p>
         <div className="hero-actions">
-          <a className="primary-button" href="/bible">Start studying</a>
-          <a className="secondary-button" href="/study">I have 5 minutes</a>
+          <a className="primary-button" href={sitePath("/bible")}>Start studying</a>
+          <a className="secondary-button" href={sitePath("/study")}>I have 5 minutes</a>
         </div>
       </section>
 
