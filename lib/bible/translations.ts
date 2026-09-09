@@ -2,13 +2,13 @@ import type { BibleTranslation } from "./types";
 
 export const bibleTranslations: BibleTranslation[] = [
   {
-    id: "kjv-sample",
-    name: "King James Version (sample)",
+    id: "kjv",
+    name: "King James Version",
     abbreviation: "KJV",
     language: "English",
-    license: "Development sample only; replace with a verified public-domain/licensed dataset before production.",
-    status: "development",
+    license: "King James Version text: public domain. Data package: MIT-licensed kjv package; verify jurisdiction-specific requirements before production distribution.",
+    status: "production",
   },
 ];
 
-export const defaultTranslationId = "kjv-sample";
+export const defaultTranslationId = "kjv";
