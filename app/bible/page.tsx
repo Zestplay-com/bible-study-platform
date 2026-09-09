@@ -9,7 +9,7 @@ export default function BiblePage() {
     <main className="reader-shell">
       <header className="reader-header">
         <a href={sitePath("/")} className="back-link">← Home</a>
-        <a href={sitePath("/ask")} className="ask-link">Ask about Scripture</a>
+        <a href={sitePath("/bible/search")} className="ask-link">Search Bible</a>
       </header>
 
       <section className="reader-intro">
