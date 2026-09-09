@@ -39,9 +39,25 @@ describe("Bible provider", () => {
     expect(verses.at(-1)?.verse).toBe(51);
   });
 
-  it("searches the full Bible text", () => {
+  it("finds an exact reference first", () => {
+    expect(provider?.search?.(defaultTranslationId, "John 3:16")).toMatchObject([
+      { reference: "John 3:16" },
+    ]);
+  });
+
+  it("accepts the common singular Psalm reference", () => {
+    expect(provider?.search?.(defaultTranslationId, "Psalm 23:1")).toMatchObject([
+      { reference: "Psalms 23:1" },
+    ]);
+  });
+
+  it("ranks exact phrases above weaker text matches", () => {
     const results = provider?.search?.(defaultTranslationId, "For God so loved the world") ?? [];
-    expect(results.some((verse) => verse.reference === "John 3:16")).toBe(true);
+    expect(results[0]?.reference).toBe("John 3:16");
+  });
+
+  it("returns no verses for an empty search", () => {
+    expect(provider?.search?.(defaultTranslationId, "   ")).toEqual([]);
   });
 
   it("returns null for an unknown verse", () => {
