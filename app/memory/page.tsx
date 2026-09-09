@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { sitePath } from "@/lib/site";
 
 type MemoryItem = { reference: string; text: string; remembered: boolean };
@@ -9,13 +8,15 @@ type MemoryItem = { reference: string; text: string; remembered: boolean };
 const STORAGE_KEY = "bible-study-memory";
 
 export default function MemoryPage() {
-  const params = useSearchParams();
-  const reference = params.get("reference") ?? "";
-  const text = params.get("text") ?? "";
+  const [reference, setReference] = useState("");
+  const [text, setText] = useState("");
   const [items, setItems] = useState<MemoryItem[]>([]);
   const [showText, setShowText] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setReference(params.get("reference") ?? "");
+    setText(params.get("text") ?? "");
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setItems(JSON.parse(saved));
