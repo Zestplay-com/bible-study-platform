@@ -35,35 +35,35 @@ const stopWords=new Set("the and of to in a for is that with as on this it by fr
 
 function normalizeBookName(value:string){
   const normalized=value.trim().toLowerCase().replace(/\s+/g," ");
-  const aliases=new Map([
-    ["psalm","psalms"],
-    ["song of songs","song of solomon"],
-  ]);
+  const aliases=new Map([["psalm","psalms"],["song of songs","song of solomon"]]);
   return aliases.get(normalized) ?? normalized;
 }
 
-function resolveBookId(bookName:string){
+export function resolveBookId(bookName:string){
   const normalized=normalizeBookName(bookName);
   return bibleBooks.find(book=>book.name.toLowerCase()===normalized)?.id ?? null;
 }
 
-function parseReference(reference:string){
+export function parseBibleReference(reference:string){
   const match=reference.trim().match(/^(.+?)\s+(\d+):(\d+)$/);
   return match?{bookName:match[1],chapter:Number(match[2]),verse:Number(match[3])}:null;
 }
 
 export function buildDynamicInsight(reference:string,text:string,provider?:BibleProvider,translationId="kjv"):StudyInsight{
-  const parsed=parseReference(reference);
+  const parsed=parseBibleReference(reference);
   const bookId=parsed?resolveBookId(parsed.bookName):null;
+  const normalizedReference=reference.trim().toLowerCase().replace(/\bpsalm\b/g,"psalms").replace(/\s+/g," ");
+  const verseFromProvider=parsed&&provider&&bookId?provider.getVerse?.(translationId,bookId,parsed.chapter,parsed.verse):null;
+  const actualText=text.trim()||verseFromProvider?.text||"";
   const nearby=parsed&&provider&&bookId?provider.getChapter(translationId,bookId,parsed.chapter):[];
-  const normalizedReference=reference.trim().toLowerCase().replace(/\bpsalm\b/g,"psalms");
   const index=nearby.findIndex(v=>v.reference.toLowerCase()===normalizedReference);
-  const before=index>0?nearby[index-1]:null; const after=index>=0&&index<nearby.length-1?nearby[index+1]:null;
-  const tokens=text.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(w=>w.length>3&&!stopWords.has(w));
+  const before=index>0?nearby[index-1]:null;
+  const after=index>=0&&index<nearby.length-1?nearby[index+1]:null;
+  const tokens=actualText.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(w=>w.length>3&&!stopWords.has(w));
   const unique=[...new Set(tokens)].slice(0,3);
   const words=unique.map(w=>lexicon[w]).filter(Boolean).slice(0,4);
   if(!words.length) words.push({word:parsed?.bookName??"passage",original:"Hebrew / Greek lexicon",transliteration:"context required",meaning:"The exact original-language word and grammatical form should be checked in the verse itself.",whyItMatters:"This prevents inventing a Hebrew or Greek meaning from an English translation."});
   let related=provider?.search?unique.flatMap(q=>provider.search!(translationId,q)).filter(v=>v.reference.toLowerCase()!==normalizedReference):[];
   related=[...new Map(related.map(v=>[v.reference,v])).values()].slice(0,5);
-  return {key:reference.toLowerCase(),theme:`A closer look at ${reference}`,bigIdea:`This passage deserves more than a quick definition. Read its words, immediate context, wider biblical connections, and the response it calls for.`,whatGodIsShowing:[`Start with what the inspired text actually says before deciding what it means for us.`,`Look for what this passage reveals about God's character, purposes, promises, commands, or human response.`,`Let application grow from the passage and remain consistent with the wider teaching of Scripture.`],context:before||after?`The immediate context matters. ${before?`The preceding verse (${before.reference}) says: “${before.text}” `:""}${after?`The following verse (${after.reference}) says: “${after.text}”`:""} Read the whole chapter to see the complete thought.`:`Read the whole chapter around ${reference}. Look for speaker, audience, setting, repeated ideas, commands, promises, contrasts and movement.`,words,crossReferences:related.map(v=>({reference:v.reference,connection:`This passage shares a meaningful word or phrase with ${reference}. Compare both passages in context; a matching word does not automatically mean identical meaning.`})),questions:[`What does the passage clearly say, and what am I assuming?`,`What does this reveal about God, Christ, the Spirit, people, sin, faith or obedience?`,`How does the surrounding chapter control the meaning of this verse?`,`Which connected Scriptures confirm, expand or balance this truth?`],application:[`Write the main truth of this passage in one sentence.`,`Identify one attitude, decision or action that should change because of what you learned.`,`Pray the truth back to God and choose one concrete step of obedience today.`],prayer:`Lord, help me understand ${reference} faithfully. Show me what Your Word says, protect me from forcing my own ideas onto it, and give me grace to obey the truth You have revealed.`};
+  return {key:normalizedReference,theme:`A closer look at ${reference}`,bigIdea:actualText?`This passage deserves more than a quick definition. Read its words, immediate context, wider biblical connections, and the response it calls for.`:`Open the passage in the Bible reader so the study can begin from the actual Scripture text.`,whatGodIsShowing:[`Start with what the inspired text actually says before deciding what it means for us.`,`Look for what this passage reveals about God's character, purposes, promises, commands, or human response.`,`Let application grow from the passage and remain consistent with the wider teaching of Scripture.`],context:before||after?`The immediate context matters. ${before?`The preceding verse (${before.reference}) says: “${before.text}” `:""}${after?`The following verse (${after.reference}) says: “${after.text}”`:""} Read the whole chapter to see the complete thought.`:`Read the whole chapter around ${reference}. Look for speaker, audience, setting, repeated ideas, commands, promises, contrasts and movement.`,words,crossReferences:related.map(v=>({reference:v.reference,connection:`This passage shares a meaningful word or phrase with ${reference}. Compare both passages in context; a matching word does not automatically mean identical meaning.`})),questions:[`What does the passage clearly say, and what am I assuming?`,`What does this reveal about God, Christ, the Spirit, people, sin, faith or obedience?`,`How does the surrounding chapter control the meaning of this verse?`,`Which connected Scriptures confirm, expand or balance this truth?`],application:[`Write the main truth of this passage in one sentence.`,`Identify one attitude, decision or action that should change because of what you learned.`,`Pray the truth back to God and choose one concrete step of obedience today.`],prayer:`Lord, help me understand ${reference} faithfully. Show me what Your Word says, protect me from forcing my own ideas onto it, and give me grace to obey the truth You have revealed.`};
 }
