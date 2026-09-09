@@ -108,7 +108,7 @@ describe("Universal study references", () => {
   it("grounds a direct study request in the provider when text is omitted", () => {
     const insight = buildDynamicInsight("Genesis 1:1", "", provider ?? undefined, defaultTranslationId);
     expect(insight.bigIdea).not.toContain("Open the passage in the Bible reader");
-    expect(insight.context).toContain("preceding verse");
+    expect(insight.context).toContain("following verse");
   });
 
   it("does not crash on an invalid reference", () => {
