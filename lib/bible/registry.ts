@@ -1,8 +1,8 @@
-import { sampleBibleProvider } from "./sample-provider";
+import { kjvBibleProvider } from "./kjv-provider";
 import type { BibleProvider } from "./provider";
 
 const providers: Record<string, BibleProvider> = {
-  "kjv-sample": sampleBibleProvider,
+  kjv: kjvBibleProvider,
 };
 
 export function getBibleProvider(translationId: string): BibleProvider | null {
