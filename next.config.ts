@@ -5,7 +5,9 @@ const basePath = isGitHubPages ? "/bible-study-platform" : "";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: "export",
+  // GitHub Pages needs a static export. Vercel should use normal Next.js
+  // routing so dynamic Bible routes do not become 404s.
+  ...(isGitHubPages ? { output: "export" as const } : {}),
   basePath,
   images: {
     unoptimized: true,
