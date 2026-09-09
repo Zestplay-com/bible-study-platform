@@ -1,12 +1,17 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { sitePath } from "@/lib/site";
 
 export default function AskPage() {
-  const params = useSearchParams();
-  const reference = params.get("reference") ?? "Scripture";
-  const text = params.get("text") ?? "";
+  const [reference, setReference] = useState("Scripture");
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setReference(params.get("reference") ?? "Scripture");
+    setText(params.get("text") ?? "");
+  }, []);
 
   return (
     <main className="action-page">
