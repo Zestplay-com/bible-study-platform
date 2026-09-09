@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { bibleBooks } from "@/lib/bible/catalog";
+import { sitePath } from "@/lib/site";
 
 type Props = { params: Promise<{ book: string }> };
+
+export function generateStaticParams() {
+  return bibleBooks.map((book) => ({ book: book.id }));
+}
 
 export default async function BookPage({ params }: Props) {
   const { book: bookId } = await params;
@@ -11,8 +16,8 @@ export default async function BookPage({ params }: Props) {
   return (
     <main className="reader-shell">
       <header className="reader-header">
-        <a href="/bible" className="back-link">← All books</a>
-        <a href="/ask" className="ask-link">Ask about Scripture</a>
+        <a href={sitePath("/bible")} className="back-link">← All books</a>
+        <a href={sitePath("/ask")} className="ask-link">Ask about Scripture</a>
       </header>
 
       <section className="reader-intro">
@@ -23,7 +28,7 @@ export default async function BookPage({ params }: Props) {
 
       <div className="chapter-grid">
         {Array.from({ length: book.chapters }, (_, index) => index + 1).map((chapter) => (
-          <a className="chapter-card" href={`/bible/${book.id}/${chapter}`} key={chapter}>
+          <a className="chapter-card" href={sitePath(`/bible/${book.id}/${chapter}`)} key={chapter}>
             {chapter}
           </a>
         ))}
