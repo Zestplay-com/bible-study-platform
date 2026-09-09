@@ -1,5 +1,5 @@
 import { defaultTranslationId } from "./translations";
-import { sampleBibleProvider } from "./sample";
+import { sampleBibleProvider } from "./sample-provider";
 
 export const getChapter = (bookId: string, chapter: number) =>
   sampleBibleProvider.getChapter(defaultTranslationId, bookId, chapter);
