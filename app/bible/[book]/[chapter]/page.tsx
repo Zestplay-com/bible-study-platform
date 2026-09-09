@@ -31,12 +31,12 @@ export default async function ChapterPage({ params }: Props) {
     <main className="reader-shell">
       <header className="reader-header">
         <a href={sitePath(`/bible/${book.id}`)} className="back-link">← {book.name}</a>
-        <a href={sitePath("/ask")} className="ask-link">Ask AI</a>
+        <a href={sitePath("/bible/search")} className="ask-link">Search Bible</a>
       </header>
 
       <article className="chapter-reader">
         <div className="chapter-title">
-          <p className="eyebrow">{book.name.toUpperCase()}</p>
+          <p className="eyebrow">{book.name.toUpperCase()} · KJV</p>
           <h1>Chapter {chapter}</h1>
         </div>
 
@@ -56,8 +56,8 @@ export default async function ChapterPage({ params }: Props) {
           </div>
         ) : (
           <div className="empty-reader">
-            <h2>More Scripture is coming.</h2>
-            <p>This development build currently contains a small sample dataset. The full Bible dataset will be connected only after its licensing/public-domain status is verified.</p>
+            <h2>Chapter unavailable</h2>
+            <p>No verses were returned by the Bible provider for this chapter.</p>
           </div>
         )}
       </article>
