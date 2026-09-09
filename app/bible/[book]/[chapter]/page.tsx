@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { bibleBooks } from "@/lib/bible/catalog";
-import { getChapter } from "@/lib/bible/sample";
+import { defaultTranslationId } from "@/lib/bible/translations";
+import { getBibleProvider } from "@/lib/bible/registry";
 import { sitePath } from "@/lib/site";
 
 type Props = { params: Promise<{ book: string; chapter: string }> };
@@ -20,7 +21,9 @@ export default async function ChapterPage({ params }: Props) {
   const chapter = Number(chapterParam);
   if (!book || !Number.isInteger(chapter) || chapter < 1 || chapter > book.chapters) notFound();
 
-  const verses = getChapter(book.id, chapter);
+  const provider = getBibleProvider(defaultTranslationId);
+  if (!provider) throw new Error(`Bible provider not configured: ${defaultTranslationId}`);
+  const verses = provider.getChapter(defaultTranslationId, book.id, chapter);
   const previous = chapter > 1 ? sitePath(`/bible/${book.id}/${chapter - 1}`) : null;
   const next = chapter < book.chapters ? sitePath(`/bible/${book.id}/${chapter + 1}`) : null;
 
@@ -44,7 +47,7 @@ export default async function ChapterPage({ params }: Props) {
                 <span className="verse-number">{verse.verse}</span>
                 <p>{verse.text}</p>
                 <div className="verse-actions">
-                  <a href={sitePath(`/ask?reference=${encodeURIComponent(`${book.name} ${chapter}:${verse.verse}`)}`)}>Explain</a>
+                  <a href={sitePath(`/ask?reference=${encodeURIComponent(verse.reference)}`)}>Explain</a>
                   <a href={sitePath("/memory")}>Memorize</a>
                   <a href={sitePath("/notes")}>Note</a>
                 </div>

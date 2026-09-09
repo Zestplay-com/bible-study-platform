@@ -1,12 +1,8 @@
-import sample from "@/data/bible/sample-kjv.json";
-import type { BibleVerse } from "./types";
+import { defaultTranslationId } from "./translations";
+import { sampleBibleProvider } from "./sample";
 
-export function getChapter(bookId: string, chapter: number): BibleVerse[] {
-  return sample.verses
-    .filter((verse) => verse.bookId === bookId && verse.chapter === chapter)
-    .map((verse) => ({
-      ...verse,
-      bookName: "",
-      reference: `${bookId} ${verse.chapter}:${verse.verse}`,
-    }));
-}
+export const getChapter = (bookId: string, chapter: number) =>
+  sampleBibleProvider.getChapter(defaultTranslationId, bookId, chapter);
+
+export const getVerse = (bookId: string, chapter: number, verse: number) =>
+  sampleBibleProvider.getVerse?.(defaultTranslationId, bookId, chapter, verse) ?? null;
